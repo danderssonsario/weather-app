@@ -1,36 +1,30 @@
-import { useState, useEffect } from "react"
+import { useState } from 'react'
 import { Input, Button } from '@nextui-org/react'
-import { data } from "autoprefixer"
 
 function SearchBar() {
   const [input, setInput] = useState('')
-  const [latitude, setLatitude] = useState()
-  const [longitude, setLongitude] = useState()
+  const [locationData, setLocationData] = useState({})
 
-  
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
-      
-      const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${import.meta.env.VITE_API_KEY}`)
+      const [latitude, longitude] = await fetchCoordinates()
+
+      const response = await fetch(
+        `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${import.meta.env.VITE_API_KEY}`
+      )
       const data = await response.json()
-      
+      setLocationData(data)
     } catch (error) {
       console.log(error)
     }
   }
 
-    useEffect(() => {
-      async function fetchData () {
-      const response = await fetch(`http://api.openweathermap.org/geo/1.0/direct?q=${'stockholm'}&appid=${import.meta.env.VITE_API_KEY}`)
-      const data = await response.json()
-
-      setLongitude(data[0].lon)
-      setLatitude(data[0].lat)
-      }
-      
-      fetchData()
-    }, [])
+  const fetchCoordinates = async () => {
+    const response = await fetch(`http://api.openweathermap.org/geo/1.0/direct?q=${input}&appid=${import.meta.env.VITE_API_KEY}`)
+    const data = await response.json()
+    return [data[0].lat, data[0].lon]
+  }
 
   const handleChange = (e) => {
     e.preventDefault()
@@ -46,9 +40,14 @@ function SearchBar() {
           placeholder='Location'
           onChange={handleChange}
         />
-        <Button type="submit" color='secondary'>Button</Button>
+        <Button
+          type='submit'
+          color='secondary'
+        >
+          Button
+        </Button>
       </form>
-      <div></div>
+      <div>{locationData.main?.temp || 'temp'}</div>
     </div>
   )
 }
