@@ -7,10 +7,13 @@ import { Input, Button } from '@nextui-org/react'
     }
   }
 
-function SearchForm({ }) {
+  interface Props {
+    onSubmitData: (data: LocationData) => void
+  }
+
+function SearchForm({ onSubmitData } : Props) {
 
   const [input, setInput] = useState<string>('');
-  const [locationData, setLocationData] = useState<LocationData>({ main: { temp: 0}});
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -18,11 +21,11 @@ function SearchForm({ }) {
       const [latitude, longitude] = await fetchCoordinates();
 
       const response = await fetch(
-        `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${import.meta.env.VITE_API_KEY}`
+        `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${import.meta.env.VITE_API_KEY}&units=metric`
       );
       const data: LocationData = await response.json();
-      setLocationData(data);
-      //onSubmitInput(data); // Call the parent's callback with the data
+
+      onSubmitData(data); // Call the parent's callback with the data
     } catch (error) {
       console.log(error);
     }
@@ -54,7 +57,6 @@ function SearchForm({ }) {
           Button
         </Button>
       </form>
-      <div>{locationData?.main.temp}</div>
     </>
   );
 }
